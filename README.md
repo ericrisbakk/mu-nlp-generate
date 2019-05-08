@@ -3,7 +3,7 @@ Project for Natural Language Processing course @ Maastricht University, bachelor
 
 Note that the data used is not directly available in this repository - but is assumed to exist in the LocalData folder. The dataset with its respective filename and source location can be found below.
 
-##Dataset / "<FileName>" / Location
+**Dataset / FileName / Location**
   
 1. Poem Dataset / "PoetryData" / https://www.kaggle.com/ultrajack/modern-renaissance-poetry
 

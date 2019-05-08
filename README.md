@@ -1,9 +1,9 @@
 # mu-nlp-generate
 Project for Natural Language Processing course @ Maastricht University, bachelor of Data Science and Knowledge Engineering.
 
-Note that the data used is not directly available in this repository - but is assumed to exist in the LocalData folder. The datasets used and their respective filenames are:
-
-1. Poem Dataset (https://www.kaggle.com/ultrajack/modern-renaissance-poetry)
+Note that the data used is not directly available in this repository - but is assumed to exist in the LocalData folder. The dataset with its respective filename and source location can be found below.
+**Dataset / "<FileName>" / Location**
+1. Poem Dataset / "PoetryData" / https://www.kaggle.com/ultrajack/modern-renaissance-poetry
 
 ## Resources of interest:
 - https://www.kaggle.com/mousehead/songlyrics

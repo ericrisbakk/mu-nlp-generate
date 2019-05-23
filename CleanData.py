@@ -85,6 +85,9 @@ def replace_unknown(s_list, unknown_dict):
     for i, s in enumerate(s_list):
         if s in unknown_dict:
             s_list[i] = unknown_dict[s]
+    return s_list
+
+
 
 
 

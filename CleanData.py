@@ -65,6 +65,15 @@ tokens = list(set(tokens))
 # Find all unknown words.
 spell = SpellChecker()
 spell.distance = 1
+
+# Some people like to say individual letters. adding them
+# Adding to spell checker.
+a = ord('a') 
+individual_letters = [chr(i) for i in range(a,a+26)]
+
+spell.word_frequency.load_words(individual_letters)
+spell.word_frequency.load_words(["\n"])
+
 print("Getting unrecognized tokens (relative to English)")
 unknown = spell.unknown(tokens)
 
@@ -81,14 +90,17 @@ for u in unknown:
 u_list = list(set(u_list))
 u_dict = dict(u_list)
 
-def replace_unknown(s_list, unknown_dict):
+def replace_unknown(s_list):
     for i, s in enumerate(s_list):
-        if s in unknown_dict:
-            s_list[i] = unknown_dict[s]
+        if s in u_dict:
+            s_list[i] = u_dict[s]
     return s_list
 
+print("Creating column of 'corrected' spellings")
+data['corrected'] = data.token.apply(replace_unknown)
 
-
+data.to_csv("LocalData/ProcessedSongData.csv")
+print("CSV file saved.")
 
 
 

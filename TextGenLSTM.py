@@ -22,7 +22,7 @@ from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 
 from keras.models import Sequential
-from keras.layers import Dense, Embedding, Activation, Bidirectional, LSTM, Dropout
+from keras.layers import Dense, Flatten, Activation, Bidirectional, LSTM, Dropout
 from keras.callbacks import ModelCheckpoint, LambdaCallback, EarlyStopping
 from keras.optimizers import RMSprop
 
@@ -36,33 +36,30 @@ from keras.optimizers import RMSprop
 # Turn sentence into list of words.
 def tokenize(s):
     s_list = [w for w in s.split(' ') if w.strip() != '' or w == '\r\n']
+    for i, w in enumerate(s_list):
+        if w == '\r\n':
+            s_list[i] = '\\r\\n'
     return s_list
 
 
 # Data generator to avoid memory issues.
 def generator(sentence_list, next_word_list, batch_size):
     index = 0
-    looped = False
     while True:
         x = np.zeros((batch_size, SEQUENCE_LEN, EMBEDDING_SIZE), dtype=np.float32)
-        y = np.zeros((batch_size, len(vocab)), dtype=np.bool)
+        y = np.zeros(batch_size, dtype=np.int32)
         for i in range(batch_size):
             # For each word in the sentence fragment, get the vector
             for t, w in enumerate(sentence_list[index]):
                 x[i, t, :] = wv[w]
             # Set the appropriate y-value.
-            y[i, word_indices[next_word_list[index]]] = 1
+            y[i] = word_indices[next_word_list[index]]
             # Each batch does a different sentence.
             index = index + 1
             # Reset the index at the end.
             if index == len(sentence_list):
                 index = 0
-                looped = True
-        # Stopping condition: If we have gone around, stop yielding.
-        if looped:
-            return None
-        else:
-            yield x, y
+        yield x, y
 
 
 # From https://github.com/enriqueav/lstm_lyrics/blob/master/lstm_train_embedding.py
@@ -95,37 +92,73 @@ def sample(preds, temperature=1.0):
     probas = np.random.multinomial(1, preds, 1)
     return np.argmax(probas)
 
-
-def on_epoch_end(epoch, logs):
+def on_interval_end(m, s_list, n_training, epoch_num, data_intervals):
     # Function invoked at end of each epoch. Prints generated text.
-    examples_file.write('\n----- Generating text after Epoch: %d\n' % epoch)
+    examples_file.write('\n----- Generating text after Run: %d\n' % n_training)
+    examples_file.write('\n----- Number of epochs per run: %d\n' % epoch_num)
+    examples_file.write('\n----- Data Intervals: %d\n' % data_intervals)
+
 
     # Randomly pick a seed sequence
-    seed_index = np.random.randint(len(sentences + sentences_test))
-    seed = (sentences + sentences_test)[seed_index]
+    seed_index = np.random.randint(len(s_list))
+    # Some sentence.
+    seed = s_list[seed_index]
 
-    for diversity in [0.3, 0.4, 0.5, 0.6, 0.7]:
+    print("Seed: ", seed)
+
+    example_songs = []
+    for i, diversity in enumerate([0.3, 0.4, 0.5, 0.6, 0.7]):
+        # Print information and chosen seed.
         sentence = seed
-        examples_file.write('----- Diversity:' + str(diversity) + '\n')
+        examples_file.write('\n----- Diversity:' + str(diversity) + '\n')
         examples_file.write('----- Generating with seed:\n"' + ' '.join(sentence) + '"\n')
         examples_file.write(' '.join(sentence))
 
-        for i in range(50):
-            x_pred = np.zeros((1, SEQUENCE_LEN))
-            for t, word in enumerate(sentence):
-                x_pred[0, t] = word_indices[word]
+        print('Example song with diversity', diversity, ':')
+        example_songs.append(' '.join(sentence))
+        for j in range(50):
+            x_pred = np.zeros((1, SEQUENCE_LEN, EMBEDDING_SIZE), dtype=np.float32)
+            for t, w in enumerate(sentence):
+                x_pred[0, t, :] = wv[w]
 
-            preds = model.predict(x_pred, verbose=0)[0]
+            preds = m.predict(x_pred, verbose=0)[0]
+
             next_index = sample(preds, diversity)
             next_word = indices_word[next_index]
 
+            example_songs[i] += (' ' + next_word)
             sentence = sentence[1:]
             sentence.append(next_word)
 
             examples_file.write(" " + next_word)
+
         examples_file.write('\n')
+        print('Song: ', example_songs[i])
     examples_file.write('=' * 80 + '\n')
     examples_file.flush()
+
+
+def generate_nn_data(sentence_list, next_word_list):
+    x = np.zeros((len(sentence_list), SEQUENCE_LEN, EMBEDDING_SIZE), dtype=np.float32)
+    y = np.zeros(len(next_word_list), dtype=np.int32)
+    # Go through each sentence fragment
+    for i, s in enumerate(sentence_list):
+        # For each word in the sentence fragment, get the vector
+        for t, w in enumerate(s):
+            x[i, t, :] = wv[w]
+        # Set the appropriate y-value.
+        y[i] = word_indices[next_word_list[i]]
+    return x, y
+
+
+def get_model():
+    new_model = Sequential()
+    # We will convert any text to a word embedding before sending it on its way.
+    new_model.add(LSTM(12, return_sequences=False, input_shape=(SEQUENCE_LEN, EMBEDDING_SIZE)))
+    new_model.add(Dropout(DROPOUT))
+    # Classification of next word.
+    new_model.add(Dense(len(vocab_keys), activation='softmax'))
+    return new_model
 
 
 """
@@ -136,7 +169,8 @@ def on_epoch_end(epoch, logs):
 
 # Saving results
 RESULT_FOLDER = "Results/"
-MODEL_NAME = "FinalModelSimple5.h5"
+MODEL_NAME = "Simple5.h5"
+EXAMPLE_FILE = "./LocalData/examples.txt"
 
 # Gensim
 EMBEDDING_SIZE = 100
@@ -158,14 +192,12 @@ BATCH_SIZE = 100
 
 # Load data.
 print("Loading data")
-data = pd.read_csv("../LocalData/ProcessedSongData.csv")
+data = pd.read_csv("./LocalData/ProcessedSongData.csv")
 # Ensure that "token" and "corrected" columns are lists, and not strings of list.
 # When saving to csv the lists are converted into string.
 print("data loaded.")
 
 print("Starting to tokenize.")
-data["t_clean"] = data.clean.apply(tokenize)
-print("Tokenized clean.")
 data["t_corrected"] = data.corrected.apply(tokenize)
 print("Tokenized corrected.")
 
@@ -186,9 +218,13 @@ vocab_keys = sorted(list(vocab.keys()))
 
 clean_songs = text_values
 
+print('Example song: ', clean_songs[0])
+
 # Load the keyed vectors.
 print("Loading Keyed Vectors.")
-wv = KeyedVectors.load("../LocalData/song_word_vec.kv")
+wv = KeyedVectors.load("./LocalData/song_word_vec.kv")
+
+wv['\\r\\n'] = wv['\r\n']
 
 # Confirm that all words in vocab is in KeyedVectors
 for word in vocab_keys:
@@ -200,12 +236,12 @@ print("Keyed Vectors Loaded.")
 print("Pairing word and index.")
 # Create word-index pairing.
 # 0 is reserved.
-word_indices = dict((c, i + 1) for i, c in enumerate(vocab_keys))
-indices_word = dict((i + 1, c) for i, c in enumerate(vocab_keys))
+word_indices = dict((c, i) for i, c in enumerate(vocab_keys))
+indices_word = dict((i, c) for i, c in enumerate(vocab_keys))
 
 # Writing a dictionary to file.
 print("Writing the word-token dict to a file.")
-f = open("../LocalData/tokenizer_dict.txt", "w")
+f = open("./LocalData/tokenizer_dict.txt", "w")
 for word in vocab_keys:
     f.write(repr(word) + " " + str(word_indices[word]) + "\n")
 f.close()
@@ -223,41 +259,56 @@ for song in clean_songs:
 
 print('Sequences:', len(sentences))
 
-# Split into training and test set.
-# x, y, x_test, y_test
-(sentences, next_words), (sentences_test, next_words_test) = shuffle_and_split_training_set(sentences, next_words)
-
 # Model!
 print("Creating model.")
-model = Sequential()
-# We will convert any text to a word embedding before sending it on its way.
-model.add(Bidirectional(LSTM(128), input_shape=(SEQUENCE_LEN, EMBEDDING_SIZE)))
-model.add(Dropout(DROPOUT))
-# Classification of next word.
-model.add(Dense(len(vocab)))
-model.add(Activation('softmax'))
+model = get_model()
+
 optimizer = RMSprop(lr=0.01)
-model.compile(loss='categorical_crossentropy', optimizer=optimizer)
+model.compile(loss='sparse_categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 
 print("Model created.")
 
-file_path = "../checkpoints/LSTM_LYRICS-epoch{epoch:03d}-words%d-sequence%d-minfreq%d-" \
-            "loss{loss:.4f}-acc{acc:.4f}-val_loss{val_loss:.4f}-val_acc{val_acc:.4f}" % \
-            (len(vocab_keys), SEQUENCE_LEN, 0)
+examples_file = open(EXAMPLE_FILE, "w")
 
-checkpoint = ModelCheckpoint(file_path, monitor='val_acc', save_best_only=True)
-print_callback = LambdaCallback(on_epoch_end=on_epoch_end)
-early_stopping = EarlyStopping(monitor='val_acc', patience=20)
-callbacks_list = [checkpoint, print_callback, early_stopping]
+print("Reducing dataset for faster runtimes.")
 
-examples_file = open("../LocalData/examples.txt", "w")
+# Split into training and test set.
+# x, y, x_test, y_test
+(sentences_train, next_words_train), (sentences_test, next_words_test) = shuffle_and_split_training_set(sentences,
+                                                                                                        next_words)
 
 print("Fitting model.")
-model.fit_generator(generator(sentences, next_words, BATCH_SIZE),
-                    steps_per_epoch=int(len(sentences) / BATCH_SIZE) + 1,
-                    epochs=100,
-                    callbacks=callbacks_list,
-                    validation_data=generator(sentences_test, next_words_test, BATCH_SIZE),
-                    validation_steps=int(len(sentences_test) / BATCH_SIZE) + 1)
 
-model.save("../LocalData/" + MODEL_NAME)
+RUNS_TOTAL = 10
+DATA_INTERVALS = 10
+EPOCHS = 1
+
+# Get list of interval values.
+interval_step = int(len(sentences_train)/DATA_INTERVALS)
+INTERVALS = [i*interval_step for i in range(DATA_INTERVALS)]
+INTERVALS.append(len(sentences_train))
+
+print('Intervals:')
+print(INTERVALS)
+
+for i in range(RUNS_TOTAL):
+    for j in range(DATA_INTERVALS):
+        print('\n\nRUN ', str(i + 1))
+        print('Interval:', INTERVALS[j], ' - ', INTERVALS[j+1], '\n\n')
+        # Prepare interval data.
+        sentence_interval = sentences_train[INTERVALS[j]:INTERVALS[j+1]]
+
+        next_words_interval = next_words_train[INTERVALS[j]:INTERVALS[j+1]]
+        X, Y = generate_nn_data(sentence_interval, next_words_interval)
+
+        model.fit(x=X, y=Y, batch_size=100, epochs=EPOCHS)
+
+    print("Generating example")
+    on_interval_end(model, sentences_test, i, EPOCHS, DATA_INTERVALS)
+
+    model.save("./LocalData/" + 'Run' + str(i) + MODEL_NAME)
+
+print("Done fitting.")
+
+print("Saving model")
+model.save("./LocalData/" + 'Final' + MODEL_NAME)

@@ -89,3 +89,11 @@ vocab_keys = sorted(list(vocab.keys()))
 
 clean_songs = text_values
 
+# Load the keyed vectors.
+wv = KeyedVectors.load("LocalData/song_word_vec.kv")
+
+# Confirm that all words in vocab is in KeyedVectors
+for word in vocab_keys:
+    if not word in wv:
+        print("Word not found: ", word)
+

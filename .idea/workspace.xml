@@ -4,7 +4,6 @@
     <list default="true" id="64e9624b-1d60-42e7-8deb-d0487f0222cd" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/Generating Songs-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/Generating Songs-checkpoint.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Generating Songs.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Generating Songs.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TextGenLSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/TextGenLSTM.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,8 +16,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TextGenLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="380">
-              <caret line="205" column="25" selection-start-line="205" selection-start-column="25" selection-end-line="205" selection-end-column="25" />
+            <state relative-caret-position="-714">
+              <caret line="18" column="17" selection-start-line="18" selection-end-line="19" />
             </state>
           </provider>
         </entry>
@@ -31,6 +30,11 @@
         <option value="Python Script" />
       </list>
     </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>tokenize</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -159,6 +163,17 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/TextGenLSTM.py</url>
+          <line>13</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="editorHistoryManager">
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/3/collections/__init__.pyi">
       <provider selected="true" editor-type-id="text-editor">
@@ -169,8 +184,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TextGenLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="380">
-          <caret line="205" column="25" selection-start-line="205" selection-start-column="25" selection-end-line="205" selection-end-column="25" />
+        <state relative-caret-position="-714">
+          <caret line="18" column="17" selection-start-line="18" selection-end-line="19" />
         </state>
       </provider>
     </entry>

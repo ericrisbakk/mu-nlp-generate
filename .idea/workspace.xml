@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="64e9624b-1d60-42e7-8deb-d0487f0222cd" name="Default Changelist" comment="" />
+    <list default="true" id="64e9624b-1d60-42e7-8deb-d0487f0222cd" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/Generating Songs-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/Generating Songs-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Generating Songs.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Generating Songs.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TextGenLSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/TextGenLSTM.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,8 +17,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TextGenLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="737">
-              <caret line="265" column="28" lean-forward="true" selection-start-line="265" selection-start-column="28" selection-end-line="265" selection-end-column="28" />
+            <state relative-caret-position="380">
+              <caret line="205" column="25" selection-start-line="205" selection-start-column="25" selection-end-line="205" selection-end-column="25" />
             </state>
           </provider>
         </entry>
@@ -134,6 +138,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="260" y="20" width="1400" height="1000" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2496329" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -164,8 +169,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TextGenLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="737">
-          <caret line="265" column="28" lean-forward="true" selection-start-line="265" selection-start-column="28" selection-end-line="265" selection-end-column="28" />
+        <state relative-caret-position="380">
+          <caret line="205" column="25" selection-start-line="205" selection-start-column="25" selection-end-line="205" selection-end-column="25" />
         </state>
       </provider>
     </entry>

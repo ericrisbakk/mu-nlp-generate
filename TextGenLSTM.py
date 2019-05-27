@@ -236,8 +236,8 @@ print("Keyed Vectors Loaded.")
 print("Pairing word and index.")
 # Create word-index pairing.
 # 0 is reserved.
-word_indices = dict((c, i) for i, c in enumerate(vocab_keys))
-indices_word = dict((i, c) for i, c in enumerate(vocab_keys))
+        word_indices = dict((c, i) for i, c in enumerate(vocab_keys))
+        indices_word = dict((i, c) for i, c in enumerate(vocab_keys))
 
 # Writing a dictionary to file.
 print("Writing the word-token dict to a file.")

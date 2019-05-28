@@ -75,9 +75,14 @@ def shuffle_and_split_training_set(sentences_original, next_original, fraction=1
     tmp_sentences = []
     tmp_next_word = []
 
-    for i in np.random.permutation(sample_num):
+    # Shuffle everything.
+    for i in np.random.permutation(len(sentences_original)):
         tmp_sentences.append(sentences_original[i])
         tmp_next_word.append(next_original[i])
+
+    # Cut!
+    tmp_sentences = tmp_sentences[0:sample_num]
+    tmp_next_word = tmp_next_word[0:sample_num]
 
     cut_index = int(sample_num * (1. - (percentage_test / 100.)))
     x_train, x_test = tmp_sentences[:cut_index], tmp_sentences[cut_index:]
@@ -176,7 +181,7 @@ def get_model():
 # Saving results
 RESULT_FOLDER = "Results/"
 MODEL_NAME = "Simple5.h5"
-EXAMPLE_FILE = "./LocalData/examples.txt"
+EXAMPLE_FILE = "../LocalData/examples.txt"
 
 # Gensim
 EMBEDDING_SIZE = 100
@@ -198,7 +203,7 @@ BATCH_SIZE = 100
 
 # Load data.
 print("Loading data")
-data = pd.read_csv("./LocalData/ProcessedSongData.csv")
+data = pd.read_csv("../LocalData/ProcessedSongData.csv")
 # Ensure that "token" and "corrected" columns are lists, and not strings of list.
 # When saving to csv the lists are converted into string.
 print("data loaded.")
@@ -228,7 +233,7 @@ print('Example song: ', clean_songs[0])
 
 # Load the keyed vectors.
 print("Loading Keyed Vectors.")
-wv = KeyedVectors.load("./LocalData/song_word_vec.kv")
+wv = KeyedVectors.load("../LocalData/song_word_vec.kv")
 
 wv['\\r\\n'] = wv['\r\n']
 
@@ -241,13 +246,12 @@ print("Keyed Vectors Loaded.")
 
 print("Pairing word and index.")
 # Create word-index pairing.
-# 0 is reserved.
 word_indices = dict((c, i) for i, c in enumerate(vocab_keys))
 indices_word = dict((i, c) for i, c in enumerate(vocab_keys))
 
 # Writing a dictionary to file.
 print("Writing the word-token dict to a file.")
-f = open("./LocalData/tokenizer_dict.txt", "w")
+f = open("../LocalData/tokenizer_dict.txt", "w")
 for word in vocab_keys:
     f.write(repr(word) + " " + str(word_indices[word]) + "\n")
 f.close()
@@ -314,9 +318,9 @@ for i in range(RUNS_TOTAL):
     print("Generating example")
     on_interval_end(model, sentences_test, i, EPOCHS, DATA_INTERVALS)
 
-    model.save("./LocalData/" + 'Run' + str(i) + MODEL_NAME)
+    model.save("../LocalData/" + 'Run' + str(i) + MODEL_NAME)
 
 print("Done fitting.")
 
 print("Saving model")
-model.save("./LocalData/" + 'Final' + MODEL_NAME)
+model.save("../LocalData/" + 'Final' + MODEL_NAME)

@@ -63,17 +63,23 @@ def generator(sentence_list, next_word_list, batch_size):
 
 
 # From https://github.com/enriqueav/lstm_lyrics/blob/master/lstm_train_embedding.py
-def shuffle_and_split_training_set(sentences_original, next_original, percentage_test=2):
+# Added a fraction argument in order to not select all of the data,
+def shuffle_and_split_training_set(sentences_original, next_original, fraction=1, percentage_test=2):
     # shuffle at unison
     print('Shuffling sentences')
 
+    sample_num = int(fraction * len(sentences_original))
+
+    print("Fraction used: ", sample_num, "/", len(sentences_original))
+
     tmp_sentences = []
     tmp_next_word = []
-    for i in np.random.permutation(len(sentences_original)):
+
+    for i in np.random.permutation(sample_num):
         tmp_sentences.append(sentences_original[i])
         tmp_next_word.append(next_original[i])
 
-    cut_index = int(len(sentences_original) * (1. - (percentage_test / 100.)))
+    cut_index = int(sample_num * (1. - (percentage_test / 100.)))
     x_train, x_test = tmp_sentences[:cut_index], tmp_sentences[cut_index:]
     y_train, y_test = tmp_next_word[:cut_index], tmp_next_word[cut_index:]
 
@@ -177,7 +183,7 @@ EMBEDDING_SIZE = 100
 WINDOW_SIZE = 7
 
 # Dataset prep
-SEQUENCE_LEN = 5
+SEQUENCE_LEN = 10
 STEP = 1
 
 # NN Model
@@ -236,8 +242,8 @@ print("Keyed Vectors Loaded.")
 print("Pairing word and index.")
 # Create word-index pairing.
 # 0 is reserved.
-        word_indices = dict((c, i) for i, c in enumerate(vocab_keys))
-        indices_word = dict((i, c) for i, c in enumerate(vocab_keys))
+word_indices = dict((c, i) for i, c in enumerate(vocab_keys))
+indices_word = dict((i, c) for i, c in enumerate(vocab_keys))
 
 # Writing a dictionary to file.
 print("Writing the word-token dict to a file.")
@@ -254,8 +260,8 @@ next_words = []
 for song in clean_songs:
     if len(song) > SEQUENCE_LEN:
         for i in range(0, len(song) - SEQUENCE_LEN, STEP):
-            sentences.append(text_in_words[i: i + SEQUENCE_LEN])
-            next_words.append(text_in_words[i + SEQUENCE_LEN])
+            sentences.append(song[i: i + SEQUENCE_LEN])
+            next_words.append(song[i + SEQUENCE_LEN])
 
 print('Sequences:', len(sentences))
 
@@ -275,8 +281,10 @@ print("Reducing dataset for faster runtimes.")
 # Split into training and test set.
 # x, y, x_test, y_test
 (sentences_train, next_words_train), (sentences_test, next_words_test) = shuffle_and_split_training_set(sentences,
-                                                                                                        next_words)
-
+                                                                                                        next_words,
+                                                                                                        fraction=0.3)
+print("Initial Sentences: ", sentences[0:1000])
+print("Training sentences: ", sentences_train[0:1000])
 print("Fitting model.")
 
 RUNS_TOTAL = 10

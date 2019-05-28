@@ -29,7 +29,10 @@ example of the generated text using only the first 6 songs:
 - how does the n-gram size inpact the results?
 - does cleaning the text generate better texts?
 
-these asnwers are based on a scoring metric provided by textatistic.
+these answers are based on a scoring metric provided by textatistic.
+
+![Screenshot](unfiltered.PNG)
+![Screenshot](filtered.PNG)
 
 further explanation about the approaches and tests can be found in the report.
 

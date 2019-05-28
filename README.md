@@ -21,7 +21,7 @@ LSTM (has an error)
 Approach 1:
 generates a dictionairy for combination of words and counts how often they occur for each n-gram up to the maximum inputted size.
 
-example of the generated text using only the first 6 songs:
+example of the generated text using only the first 6 songs and n = 4:
 
 'was please lucky wanna wanna she you'll lucky smile Who show a here time, tired kind your Andante something your slowly learn packing surrender be Well, Like do? walking found sweet thought Look dumb I Dum-be-dum-dum Touch Burning feels Well, Yes, I rotten question hours walkin' walkin' ma learn She's Holy Saying to think it's used sweet enough little time she ever play entitled things grow here You end you've be-dumb-be-dumb-dumb believe please - (You at means No fine face, sing, blue Andante Girl Once cutting Oh kind of out throwing together use Look away Being warm.'
 

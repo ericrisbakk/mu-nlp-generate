@@ -27,4 +27,8 @@ generates a dictionairy for combination of words and counts how often they occur
 
 these asnwers are based on a scoring metric provided by textatistic.
 
+further explanation about the approaches and tests can be found in the report.
+
+
+
 

@@ -5,6 +5,7 @@ This implementation was done following a number of texts / tutorials:
 - a continuation of the previous tutorial using word embeddings: https://medium.com/@enriqueav/update-automatic-song-lyrics-creator-with-word-embeddings-e30de94db8d1,
 - and this tutorial for word embeddings: https://machinelearningmastery.com/develop-word-embedding-model-predicting-movie-review-sentiment/.
 """
+import datetime
 
 """
 *******************************************************
@@ -23,7 +24,7 @@ from keras.preprocessing.sequence import pad_sequences
 
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Activation, Bidirectional, LSTM, Dropout
-from keras.callbacks import ModelCheckpoint, LambdaCallback, EarlyStopping
+from keras.callbacks import ModelCheckpoint
 from keras.optimizers import RMSprop
 
 """
@@ -103,12 +104,12 @@ def sample(preds, temperature=1.0):
     probas = np.random.multinomial(1, preds, 1)
     return np.argmax(probas)
 
+
 def on_interval_end(m, s_list, n_training, epoch_num, data_intervals):
     # Function invoked at end of each epoch. Prints generated text.
     examples_file.write('\n----- Generating text after Run: %d\n' % n_training)
     examples_file.write('\n----- Number of epochs per run: %d\n' % epoch_num)
     examples_file.write('\n----- Data Intervals: %d\n' % data_intervals)
-
 
     # Randomly pick a seed sequence
     seed_index = np.random.randint(len(s_list))
@@ -179,22 +180,30 @@ def get_model():
 """
 
 # Saving results
-RESULT_FOLDER = "Results/"
-MODEL_NAME = "Simple5.h5"
-EXAMPLE_FILE = "../LocalData/examples.txt"
+RESULT_FOLDER = "../LocalData/"
+DATE_FORMAT = "%Y-%m-%d_%H-%M-%S_"
+DATE_STAMP = datetime.datetime.now().strftime(DATE_FORMAT)
+MODEL_NAME = "Simple10"
+FILE_TYPE = '.h5'
+EXAMPLE_FILE = RESULT_FOLDER + "examples.txt"
 
 # Gensim
 EMBEDDING_SIZE = 100
 WINDOW_SIZE = 7
 
 # Dataset prep
+SEQUENCES_FRACTION = 0.3
 SEQUENCE_LEN = 10
 STEP = 1
 
 # NN Model
 DROPOUT = 0.5
-BATCH_SIZE = 100
+BATCH_SIZE = 128
 
+# Experimental stuff
+RUNS_TOTAL = 30
+DATA_INTERVALS = 10
+EPOCHS = 1
 """
 *******************************************************
                           MAIN SCRIPT
@@ -286,41 +295,46 @@ print("Reducing dataset for faster runtimes.")
 # x, y, x_test, y_test
 (sentences_train, next_words_train), (sentences_test, next_words_test) = shuffle_and_split_training_set(sentences,
                                                                                                         next_words,
-                                                                                                        fraction=0.3)
+                                                                                                        fraction=SEQUENCES_FRACTION)
 print("Initial Sentences: ", sentences[0:1000])
 print("Training sentences: ", sentences_train[0:1000])
 print("Fitting model.")
 
-RUNS_TOTAL = 10
-DATA_INTERVALS = 10
-EPOCHS = 1
-
 # Get list of interval values.
-interval_step = int(len(sentences_train)/DATA_INTERVALS)
-INTERVALS = [i*interval_step for i in range(DATA_INTERVALS)]
+interval_step = int(len(sentences_train) / DATA_INTERVALS)
+INTERVALS = [i * interval_step for i in range(DATA_INTERVALS)]
 INTERVALS.append(len(sentences_train))
 
 print('Intervals:')
 print(INTERVALS)
 
+date_time = datetime.datetime.now().strftime(DATE_FORMAT)
+CHECKPOINT_NAME = RESULT_FOLDER + date_time + 'CheckP_' + MODEL_NAME
+
+print("Time to go!")
+print("Start of training: ", datetime.datetime.now())
+print("Epochs: ", EPOCHS)
+
+
 for i in range(RUNS_TOTAL):
     for j in range(DATA_INTERVALS):
         print('\n\nRUN ', str(i + 1))
-        print('Interval:', INTERVALS[j], ' - ', INTERVALS[j+1], '\n\n')
+        print('Interval:', INTERVALS[j], ' - ', INTERVALS[j + 1], '\n\n')
         # Prepare interval data.
-        sentence_interval = sentences_train[INTERVALS[j]:INTERVALS[j+1]]
+        sentence_interval = sentences_train[INTERVALS[j]:INTERVALS[j + 1]]
 
-        next_words_interval = next_words_train[INTERVALS[j]:INTERVALS[j+1]]
+        next_words_interval = next_words_train[INTERVALS[j]:INTERVALS[j + 1]]
         X, Y = generate_nn_data(sentence_interval, next_words_interval)
 
-        model.fit(x=X, y=Y, batch_size=100, epochs=EPOCHS)
+        model.fit(x=X, y=Y, batch_size=BATCH_SIZE, epochs=EPOCHS)
 
     print("Generating example")
     on_interval_end(model, sentences_test, i, EPOCHS, DATA_INTERVALS)
 
-    model.save("../LocalData/" + 'Run' + str(i) + MODEL_NAME)
+    if i % 5 == 0:
+        model.save("../LocalData/" + CHECKPOINT_NAME + 'Run' + i + FILE_TYPE)
 
 print("Done fitting.")
 
 print("Saving model")
-model.save("../LocalData/" + 'Final' + MODEL_NAME)
+model.save((RESULT_FOLDER + date_time + 'Final' + MODEL_NAME + FILE_TYPE))

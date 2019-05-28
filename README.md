@@ -13,3 +13,18 @@ Note that the data used is not directly available in this repository - but is as
 - http://groups.inf.ed.ac.uk/cup/ddd/
 - https://crtranscript.tumblr.com/transcripts
 - http://www.erinhengel.com/software/textatistic/?fbclid=IwAR2O5evMt-xbYwOuLgdhYFU9ItmhiQ3bQhrjSAOFOF8aY0p_Ytu1b4GjKqw
+
+Two approaches:
+N-gram model combined with bag of words.
+LSTM (has an error)
+
+Approach 1:
+generates a dictionairy for combination of words and counts how often they occur for each n-gram up to the maximum inputted size.
+
+2 experiments:
+- how does the n-gram size inpact the results?
+- does cleaning the text generate better texts?
+
+these asnwers are based on a scoring metric provided by textatistic.
+
+

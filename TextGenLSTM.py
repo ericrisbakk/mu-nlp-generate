@@ -166,7 +166,7 @@ def generate_nn_data(sentence_list, next_word_list):
 def get_model():
     new_model = Sequential()
     # We will convert any text to a word embedding before sending it on its way.
-    new_model.add(LSTM(12, return_sequences=False, input_shape=(SEQUENCE_LEN, EMBEDDING_SIZE)))
+    new_model.add(LSTM(256, return_sequences=False, input_shape=(SEQUENCE_LEN, EMBEDDING_SIZE)))
     new_model.add(Dropout(DROPOUT))
     # Classification of next word.
     new_model.add(Dense(len(vocab_keys), activation='softmax'))
@@ -180,28 +180,29 @@ def get_model():
 """
 
 # Saving results
-RESULT_FOLDER = "../LocalData/"
-DATE_FORMAT = "%Y-%m-%d_%H-%M-%S_"
+RESULT_FOLDER = "./LocalData/"
+DATE_FORMAT = "%Y%m%d%H%M%S"
 DATE_STAMP = datetime.datetime.now().strftime(DATE_FORMAT)
-MODEL_NAME = "Simple10"
+MODEL_NAME = "Type10"
 FILE_TYPE = '.h5'
 EXAMPLE_FILE = RESULT_FOLDER + "examples.txt"
+TEST_SET_SAVE_FILE = RESULT_FOLDER + 'TestSet' + DATE_STAMP + '.txt'
 
 # Gensim
 EMBEDDING_SIZE = 100
 WINDOW_SIZE = 7
 
 # Dataset prep
-SEQUENCES_FRACTION = 0.3
+SEQUENCES_FRACTION = 0.5
 SEQUENCE_LEN = 10
 STEP = 1
 
 # NN Model
-DROPOUT = 0.5
+DROPOUT = 0.4
 BATCH_SIZE = 128
 
 # Experimental stuff
-RUNS_TOTAL = 30
+RUNS_TOTAL = 20
 DATA_INTERVALS = 10
 EPOCHS = 1
 """
@@ -212,7 +213,7 @@ EPOCHS = 1
 
 # Load data.
 print("Loading data")
-data = pd.read_csv("../LocalData/ProcessedSongData.csv")
+data = pd.read_csv("./LocalData/ProcessedSongData.csv")
 # Ensure that "token" and "corrected" columns are lists, and not strings of list.
 # When saving to csv the lists are converted into string.
 print("data loaded.")
@@ -242,7 +243,7 @@ print('Example song: ', clean_songs[0])
 
 # Load the keyed vectors.
 print("Loading Keyed Vectors.")
-wv = KeyedVectors.load("../LocalData/song_word_vec.kv")
+wv = KeyedVectors.load("./LocalData/song_word_vec.kv")
 
 wv['\\r\\n'] = wv['\r\n']
 
@@ -260,7 +261,7 @@ indices_word = dict((i, c) for i, c in enumerate(vocab_keys))
 
 # Writing a dictionary to file.
 print("Writing the word-token dict to a file.")
-f = open("../LocalData/tokenizer_dict.txt", "w")
+f = open("./LocalData/tokenizer_dict.txt", "w")
 for word in vocab_keys:
     f.write(repr(word) + " " + str(word_indices[word]) + "\n")
 f.close()
@@ -296,6 +297,13 @@ print("Reducing dataset for faster runtimes.")
 (sentences_train, next_words_train), (sentences_test, next_words_test) = shuffle_and_split_training_set(sentences,
                                                                                                         next_words,
                                                                                                         fraction=SEQUENCES_FRACTION)
+# Save test set for future use.
+test_f = open(TEST_SET_SAVE_FILE, 'w')
+for i in range(len(sentences_test)):
+    test_s = ' '.join(sentences_test[i]) + ' ' + next_words_test[i] + '\n'
+    test_f.write(test_s)
+test_f.close()
+
 print("Initial Sentences: ", sentences[0:1000])
 print("Training sentences: ", sentences_train[0:1000])
 print("Fitting model.")
@@ -308,8 +316,7 @@ INTERVALS.append(len(sentences_train))
 print('Intervals:')
 print(INTERVALS)
 
-date_time = datetime.datetime.now().strftime(DATE_FORMAT)
-CHECKPOINT_NAME = RESULT_FOLDER + date_time + 'CheckP_' + MODEL_NAME
+CHECKPOINT_NAME = RESULT_FOLDER + DATE_STAMP + 'CheckP_' + MODEL_NAME
 
 print("Time to go!")
 print("Start of training: ", datetime.datetime.now())
@@ -318,7 +325,7 @@ print("Epochs: ", EPOCHS)
 
 for i in range(RUNS_TOTAL):
     for j in range(DATA_INTERVALS):
-        print('\n\nRUN ', str(i + 1))
+        print('\n\nRUN ', str(i + 1), ', INTERVAL ', str(j+1))
         print('Interval:', INTERVALS[j], ' - ', INTERVALS[j + 1], '\n\n')
         # Prepare interval data.
         sentence_interval = sentences_train[INTERVALS[j]:INTERVALS[j + 1]]
@@ -332,9 +339,9 @@ for i in range(RUNS_TOTAL):
     on_interval_end(model, sentences_test, i, EPOCHS, DATA_INTERVALS)
 
     if i % 5 == 0:
-        model.save("../LocalData/" + CHECKPOINT_NAME + 'Run' + i + FILE_TYPE)
+        model.save(RESULT_FOLDER + MODEL_NAME + 'CheckP_' + DATE_STAMP + 'Run' + str(i) + FILE_TYPE)
 
 print("Done fitting.")
 
 print("Saving model")
-model.save((RESULT_FOLDER + date_time + 'Final' + MODEL_NAME + FILE_TYPE))
+model.save((RESULT_FOLDER + 'Final_' + DATE_STAMP + MODEL_NAME + FILE_TYPE))

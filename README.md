@@ -5,10 +5,9 @@ Note that the data used is not directly available in this repository - but is as
 
 **Dataset / FileName / Location**
   
-1. Poem Dataset / "PoetryData" / https://www.kaggle.com/ultrajack/modern-renaissance-poetry
+1. Poem Dataset / "SongData" / https://www.kaggle.com/mousehead/songlyrics
 
-## Resources of interest:
-- https://www.kaggle.com/mousehead/songlyrics
+## Resources of interest
 - https://www.kaggle.com/paultimothymooney/poetry-generator-rnn-markov
 - http://groups.inf.ed.ac.uk/cup/ddd/
 - https://crtranscript.tumblr.com/transcripts

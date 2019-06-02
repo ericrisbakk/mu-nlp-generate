@@ -41,17 +41,36 @@ these answers are based on a scoring metric provided by textatistic.
 further explanation about the approaches and tests can be found in the report.
 
 ## Approach 2:
-All the LSTM share some basic properties: They take as input word embeddings of size 100, trained on the full dataset, and as output return probabilities over 60'000 possible words.
+The three final LSTM share some basic properties: They take as input word embeddings of size 100 of the last 10 words that appeared (word embeddings were trained on entire dataset). Output returs probabilities over 60'000 possible words using Sigmoid.
 
 - The first model has a single LSTM layer of 12 nodes (non-intentional, an 8 was unintentionally left out)
 - The second model has a single LSTM layer of 256 nodes
 - The third model has two consecutive LSTM layers of 256 nodes each.
 
+
+When choosing the prediction with max score, all models made so far will usually just return "\\r\\n", the symbol for a new line - which makes sense, as this letter occurs for every line and in every song. However, the third model is usually able to predict a sequence like "I'm" or "you're" to a much better degree than the other two.
+
+To diversify output, predictions are sampled randomly, weighted to their respective probability. The lower the weight, the more deterministic the sampling.
+
+### Data Input Selection
+
+Because training times were too long for the entire dataset, only a subset was used for each model. There were 2 main choices, to either train on data generated from a subset of songs, or to generate datapoints from all songs, and only pick a selection of those datapoints. Half of the dataset was used, making more than 7 million datapoints.
+
+The latter approach was chosen, under the belief that this would give the LSTM exposure more varied examples to work with, as opposed to the first, which might cause the LSTM to be too tied to the songs it already knows - in the end, the best LSTM can only form very simple sentence fragments with this approach.
+
+### Classification properties.
+
+Using 10'000 datapoints, the following weighted averages of scores were collected:
+model    / accuracy / precision / recall / f1-score
+model 1  / 0.1633   /  0.06     / 0.16   /  0.07
+model 2  / 0.1809   /  0.08     / 0.18   /  0.10
+model 3  / 0.2002   /  0.09     / 0.20   /  0.10
+
+Most words, the model has trouble with, except for most english stop words like "my" or "they".
+
 ### Generation
 
 The example songs were generated with the third model.
-
-When choosing the prediction with max score, all models made so far will usually just return "\\r\\n", the symbol for a new line - which makes sense, as this letter occurs for every line and in every song. However, the third model is usually able to predict a sequence like "I'm" or "you're" to a much better degree than the other two.
 
 However, a small improvement - in terms of human readability appears to have been made by the following post-processing steps after receiving output, by:
 

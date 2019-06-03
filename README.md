@@ -103,4 +103,4 @@ This process was included to generate the below songs.
 - seed "he sleeps under black seas waiting lies dreaming in death"
 - song: 'he sleeps under black seas waiting lies dreaming in death \\r\\n i can t i m the world \\r\\n i m a little little way \\r\\n and i m gonna be a be \\r\\n i ll be the sun \\r\\n i m a little little \\r\\n i m the night \\r\\n i m not the \\r\\n i m a little little \\r\\n i don t know you re the sun \\r\\n i m a little little \\r\\n i m a little man \\r\\n i m a little heart \\r\\n and i m to be a little \\r\\n i m a love of the way \\r\\n and i m a little'
 
-It is mostly just capable of forming simple sentences of the "I'm x" variety, with some variety.
+It is mostly just capable of forming simple sentences of the "I'm x" type, with some variety.

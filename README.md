@@ -64,11 +64,13 @@ When choosing the prediction with max score, all models made so far will usually
 
 To diversify output, predictions are sampled randomly, weighted to their respective probability. The lower the weight, the more deterministic the sampling.
 
-### Data Input Selection
+### Data Input Selection and Training
 
 Because training times were too long for the entire dataset, only a subset was used for each model. There were 2 main choices, to either train on data generated from a subset of songs, or to generate datapoints from all songs, and only pick a selection of those datapoints. Half of the dataset was used, making more than 7 million datapoints.
 
 The latter approach was chosen, under the belief that this would give the LSTM exposure more varied examples to work with, as opposed to the first, which might cause the LSTM to be too tied to the songs it already knows - in the end, the best LSTM can only form very simple sentence fragments with this approach.
+
+The model was trained for 20 epochs, - which is generally agreed on being the number of epochs when an LSTM starts producing semi-comprehensible input. Each LSTM layer had a dropoutr-rate of 0.4. Because of memory issues, the model had to be trained over the training set in parts.
 
 ### Classification properties.
 
@@ -104,3 +106,7 @@ This process was included to generate the below songs.
 - song: 'he sleeps under black seas waiting lies dreaming in death \\r\\n i can t i m the world \\r\\n i m a little little way \\r\\n and i m gonna be a be \\r\\n i ll be the sun \\r\\n i m a little little \\r\\n i m the night \\r\\n i m not the \\r\\n i m a little little \\r\\n i don t know you re the sun \\r\\n i m a little little \\r\\n i m a little man \\r\\n i m a little heart \\r\\n and i m to be a little \\r\\n i m a love of the way \\r\\n and i m a little'
 
 It is mostly just capable of forming simple sentences of the "I'm x" type, with some variety.
+
+### Further work
+
+Further improvements could be made. Beyond other NN architectures, would it make more sense to  train on a subsets of songs, rather than a subset of datapoints? Taking the preprocessing step further may also be of interest, especially when it comes to handling the '\\r\\n' character. Training over more epochs is yet another factor to consider.

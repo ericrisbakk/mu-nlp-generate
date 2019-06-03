@@ -44,13 +44,13 @@ further explanation about the approaches and tests can be found in the report.
 
 ### A Short Descriptions of the Jupyter Notebooks
 
-Data Exploration - Initial data exploration and preprocessing of the dataset
+**Data Exploration** - Initial data exploration and preprocessing of the dataset
 
-Further Data Exploration - Exploration done after-the-fact to further investigate properties of the dataset
+**Further Data Exploration** - Exploration done after-the-fact to further investigate properties of the dataset
 
-Generating Songs & Output Analysis - Functionality for song generation and analyzing model output
+**Generating Songs & Output Analysis** - Functionality for song generation and analyzing model output
 
-Simple Keras LSTM Text Generation - Initial playground for making a working prototype. Abandoned later in favor of the a regular python file (TextGenLSTM)
+**Simple Keras LSTM Text Generation** - Initial playground for making a working prototype. Abandoned later in favor of the a regular python file (TextGenLSTM)
 
 ### Model Description
 The three final LSTM share some basic properties: They take as input word embeddings of size 100 of the last 10 words that appeared (word embeddings were trained on entire dataset). Output returs probabilities over 60'000 possible words using Sigmoid.
